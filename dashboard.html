@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>VeriNews | Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+</head>
+
+<body class="bg-[#0f172a] text-white">
+
+<!-- ================= NAVBAR ================= -->
+<nav class="fixed top-0 left-0 w-full h-[72px] bg-[#020617] flex items-center justify-between px-6
+ z-50 border-b border-gray-800">
+
+  <!-- Logo -->
+  <div class="flex items-center gap-0">
+    <img src="/static/images/logorobo.png" class="h-16 w-16" alt="logo">
+    <span class="text-2xl font-bold text-cyan-400">VeriNews</span>
+  </div>
+
+  <!-- Search -->
+  <div class="w-[420px]">
+    <input
+    id="searchInput"
+      type="text"
+      placeholder="Search news..."
+      class="w-full px-4 py-2 rounded-full bg-slate-800 border border-gray-700 
+      focus:outline-none focus:ring-2 focus:ring-cyan-400"
+    >
+  </div>
+  <div style="display:flex; align-items:center; gap:12px">
+    
+
+
+    <!-- RIGHT NAVBAR ICONS -->
+<div class="flex items-center gap-4 relative">
+
+  <!-- CHECK NEWS ROBOT ICON -->
+<div class = "relative inline-block">  
+<img
+  src="/static/images/robot.png"
+  id="checkNewsBtn"
+  class="w-9 h-9 cursor-pointer hover:scale-110 transition"
+  title="Check News"
+/>
+</div>
+<div
+  id="checkNewsModal"
+  class="absolute top-16 right-6 hidden z-50"
+>
+  <div class="bg-[#0f172a]  w-[520px] rounded-xl p-5 shadow-2xl border border-cyan-500/30">
+
+    <h2 class="text-xl font-bold text-cyan-400 mb-4">
+       Check News with AI
+    </h2>
+
+    <textarea
+      id="newsInput"
+      rows="4"
+      placeholder="Paste your news here..."
+      class="w-full p-3 rounded bg-[#020617] border border-gray-700 text-white text-sm focus:outline-none focus:border-cyan-400"
+    ></textarea>
+
+    <button
+      id="checkNewsSubmit"
+      class="mt-4 w-full bg-cyan-400 hover:bg-cyan-500 text-black font-semibold py-2.5 rounded"
+    >
+      Check News
+    </button>
+
+    <p id="checkNewsResult" class="mt-4 text-sm text-gray-300"></p>
+
+    <button
+      id="closeCheckNews"
+      class="mt-3 text-xs text-gray-400 hover:text-white"
+    >
+      Close
+    </button>
+
+  </div>
+</div>
+
+  <!-- Notification Bell -->
+  <div class="relative">
+    <button id="notifBtn" class="relative focus:outline-none">
+      <!-- Bell Icon -->
+      <svg xmlns="http://www.w3.org/2000/svg"
+           class="w-6 h-6 text-white"
+           fill="none" viewBox="0 0 24 24"
+           stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11
+              a6.002 6.002 0 00-4-5.659V4
+              a2 2 0 10-4 0v1.341
+              C7.67 6.165 6 8.388 6 11v3.159
+              c0 .538-.214 1.055-.595 1.436L4 17h5" />
+      </svg>
+
+      <!-- 🔴 Notification Count -->
+      {% if unread_count is defined and unread_count > 0 %}
+      <span class="absolute -top-2 -right-2 bg-red-600 text-white
+                   text-xs font-bold rounded-full px-1">
+        {{ unread_count }}
+      </span>
+      {% endif %}
+    </button>
+
+    <!-- 🔽 Notification Dropdown -->
+    <div id="notifBox"
+         class="hidden absolute right-0 mt-3 w-72 bg-[#0f172a]
+                rounded-lg shadow-lg z-50 border border-gray-700">
+
+      <div class="p-3 border-b border-gray-700 font-semibold">
+        Notifications
+      </div>
+
+      {% for n in notifications %}
+      <div class="p-3 text-sm border-b border-gray-800">
+        {{ n.message }}
+        <div class="text-xs text-gray-400 mt-1">{{ n.time }}</div>
+      </div>
+      {% endfor %}
+
+      {% if notifications|length == 0 %}
+      <div class="p-3 text-sm text-gray-400">
+        No notifications
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+    <!-- Account Icon -->
+    <a href="/account" title="My Account"
+       style="width:36px;height:36px;
+              border-radius:50%;
+              background:#38bdf8;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              color:#0f172a;
+              font-weight:bold;
+              text-decoration:none;">
+        👤
+    </a>
+
+  <!-- Logout -->
+  <a href="/" class="text-sm bg-cyan-500 hover:bg-cyan-600 text-black px-4 py-2 rounded-full">
+    Logout
+  </a>
+</nav>
+
+<!-- spacing because navbar fixed -->
+<div class="h-[72px]"></div>
+
+<!-- ================= CATEGORY BAR ================= -->
+
+  
+<div class="flex gap-3 mt-5" id="categoryBar">
+
+<button onclick="filterNews('all', this)" class="category-btn active">All</button>
+
+  <button onclick="filterNews('security', this)"
+    class="category-btn">
+    Security
+  </button>
+
+  <button onclick="filterNews('accident', this)"
+    class="category-btn">
+    Accident
+  </button>
+
+
+  <button onclick="filterNews('education', this)"
+    class="category-btn">
+    Education
+  </button>
+
+  <button onclick="filterNews('politics', this)"
+    class="category-btn">
+    Politics
+  </button>
+
+  <button onclick="filterNews('other', this)"
+    class="category-btn">
+    Other
+  </button>
+
+</div>
+
+</div>
+
+
+{% if selected_category=="all"%}
+
+<!-- ================= HERO SECTION ================= -->
+<section class="py-12 ">
+  <div class="max-w-[90rem] mx-auto px-6 lg:px-8">
+  <div
+    class="news-card hero-card grid grid-cols-1 md:grid-cols-2 gap-14 items-center"
+    data-category="security"
+  >
+
+    <!-- IMAGE LEFT -->
+    <div>
+      <img id="sindoorSliderDashboard"
+        src="/static/images/sindoor.png"
+        alt="Operation Sindoor"
+        class="hero-img  rounded-3xl w-full h-[380px] object-cover object-top transition-opacity duration-700"
+      >
+    </div>
+
+    <!-- CONTENT RIGHT -->
+    <div class="pr-6">
+      <span class="inline-block mb-4 px-3 py-1 bg-red-600 text-sm rounded-full">
+        security
+      </span>
+
+      <h1 class="text-4xl font-bold mb-4 leading-snug">
+        Operation Sindoor dominates national security headlines
+      </h1>
+
+      <p class="text-gray-300 mb-6">
+        India launches Operation Sindoor in response to terror threats,
+        intensifying surveillance and military preparedness across regions.
+      </p>
+
+      <button
+        onclick="window.location.href='/sindoor'"
+        class="px-6 py-3 bg-cyan-500 text-black rounded-lg hover:bg-cyan-600"
+      >
+        Read Full Story
+      </button>
+    </div>
+
+  </div>
+</section>
+{% endif %}
+
+
+
+
+
+<!-- ================= NEWS GRID (PINTEREST STYLE) ================= --> 
+ <section class="max-w-[90rem] mx-auto px-6 pb-20">
+
+  <!-- NEWS GRID -->
+  <div id="newsContainer"
+       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 grid-flow-dense">
+
+    {% for key, item in news.items() %}
+
+    <!-- CARD -->
+    <a href="{% if item.is_premium and not user_is_subscribed %}
+                /subscribe
+              {% else %}
+                /news/{{ key }}
+              {% endif %}"
+       class="news-card rounded-2xl overflow-hidden
+              cursor-pointer relative group
+              {% if item.get('is_featured') %}
+                lg:col-span-3
+              {% endif %}" 
+              data-title="{{item.title | lower}}"
+              data-category="{{item.category | lower}}"
+              data-status="{{item.status| lower}}">
+
+      <!-- IMAGE -->
+      <div class="relative overflow-hidden">
+
+  <!-- IMAGE -->
+  <img src="{{ url_for('static', filename='images/' + item.image) }}"
+       class="w-full h-[380px] object-cover {%if item.get('is_premium') and not user_is_subscribed%}
+              blur-sm
+            {% endif %}">
+
+  <!-- TOP OVERLAY -->
+  {% if item.get('is_featured') %}
+  <div class="absolute top-0 left-0 w-full h-32
+              bg-gradient-to-b from-black/60 to-transparent">
+  </div>
+
+  <!-- ISRO TEXT -->
+  <div class="absolute inset-0 flex items-center justify-center">
+    <span class="text-red-800/60 text-9xl font-extrabold tracking-widest drop-shadow-lg">
+      ISRO
+    </span>
+  </div>
+  {% endif %}
+
+</div>
+
+      {% if item.is_premium and not user_is_subscribed %}
+<div class="absolute inset-0 flex flex-col items-center justify-center
+            bg-black/30 backdrop-blur-sm">
+
+  <div class="px-6 py-3 rounded-full
+              bg-gradient-to-r from-yellow-400 to-orange-500
+              text-black font-extrabold tracking-widest
+              shadow-2xl text-lg">
+    🔒 PREMIUM
+  </div>
+
+  <p class="mt-3 text-sm text-gray-200 italic">
+    Subscribe to unlock full story
+  </p>
+
+</div>
+{% endif %}
+
+      <!-- CONTENT -->
+      <div class="p-4">
+
+        <!-- CATEGORY BADGE -->
+        <span class="inline-block mb-3 px-3 py-1 text-sm rounded-full
+        {% if item.category == 'security' %}
+          bg-red-600
+        {% elif item.category == 'religion' %}
+          bg-yellow-600
+        {% elif item.category == 'accident' %}
+          bg-orange-600
+        {% elif item.category == 'law' %}
+          bg-blue-600
+        {% elif item.category == 'politics' %}
+          bg-purple-600
+        {% else %}
+          bg-green-600
+        {% endif %}">
+          {{ item.category }}
+        </span>
+
+        <!-- TITLE -->
+        <h3 class="font-semibold text-white leading-snug">
+          {{ item.title }}
+        </h3>
+
+      </div>
+
+    </a>
+
+    {% endfor %}
+
+  </div>
+</section>
+<!-- AI SEARCH FALLBACK BOX -->
+<div
+  id="aiSearchBox"
+  class="hidden mt-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-5 transition-all"
+>
+  <!-- AI badge -->
+  <div class="flex items-center gap-2 mb-2 text-cyan-400 text-xs font-semibold">
+    <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+    AI Generated Result
+  </div>
+
+  <!-- Title -->
+  <h3
+    id="aiSearchTitle"
+    class="text-lg font-semibold text-white mb-1"
+  ></h3>
+
+  <!-- Description -->
+  <p
+    id="aiSearchDesc"
+    class="text-sm text-gray-300 leading-relaxed"
+  ></p>
+
+  <!-- Action -->
+  <a
+    id="aiSearchLink"
+    class="inline-block mt-4 text-sm font-medium text-cyan-400 hover:text-cyan-300 transition"
+  >
+    View detailed news →
+  </a>
+</div>
+
+
+
+
+
+<style>
+  .category-btn {
+    padding: 6px 16px;
+    border-radius: 9999px;
+    border: 1px solid #475569;
+    color: #e5e7eb;
+    transition: all 0.25s ease;
+  }
+
+  .category-btn:hover {
+    background-color: #22d3ee;
+    color: black;
+  }
+
+  .category-btn.active {
+    background-color: #22d3ee;
+    color: black;
+    border-color: #22d3ee;
+  }
+</style>
+
+<script>
+let currentCategory = "all";
+
+const searchInput = document.getElementById("searchInput");
+searchInput.addEventListener("input",applyFilters);
+const cards = document.querySelectorAll(".news-card");
+
+/* CATEGORY FILTER */
+function filterNews(category, btn) {
+  currentCategory = category;
+
+  document.querySelectorAll(".category-btn").forEach(b =>
+    b.classList.remove("active")
+  );
+  btn.classList.add("active");
+
+  applyFilters();
+}
+
+/* MAIN FILTER LOGIC */
+function applyFilters() {
+  const searchText = searchInput.value.toLowerCase().trim();
+  let anyVisible = false;
+
+  cards.forEach(card => {
+    const title = (card.dataset.title || "").toLowerCase();
+    const category = (card.dataset.category || "").toLowerCase();
+    const status = (card.dataset.status || "").toLowerCase();
+
+    const matchCategory =
+      currentCategory === "all" || category === currentCategory;
+
+    const matchSearch =
+      title.includes(searchText) ||
+      category.includes(searchText) ||
+      status.includes(searchText);
+
+    if (matchCategory && matchSearch) {
+      card.classList.remove("hidden");
+      anyVisible = true;
+    } else {
+      card.classList.add("hidden");
+    }
+  });
+  const aiBox = document.getElementById("aiSearchBox");
+
+if (!anyVisible && searchText !== "") {
+  aiBox.classList.remove("hidden");
+  document.getElementById("aiSearchTitle").innerText =
+    "Here's what we found about: " + searchText;
+  document.getElementById("aiSearchDesc").innerText =
+    "We've gathered some recent and relevant updates curated just for you";
+  document.getElementById("aiSearchLink").href =
+    "/ai-news?query=" + encodeURIComponent(searchText);
+
+} else {
+  aiBox.classList.add("hidden");
+}
+if (searchText === lastAISearch) return;
+    lastAISearch = searchText;
+
+
+fetch("/ai-search", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ query: searchText })
+})
+.then(res => res.json())
+.then(data => {
+  if (data && data.title && data.description) {
+    document.getElementById("aiSearchTitle").innerText = data.title;
+    document.getElementById("aiSearchDesc").innerText = data.description;
+  }
+})
+.catch(() => {
+    document.getElementById("aiSearchDesc").innerText =
+        "AI search failed. Try again later.";
+    document.getElementById("aiWarning").classList.remove("hidden");    
+});
+
+  
+}
+</script>
+<!-- FOOTER -->
+<footer class="mt-20 border-t border-gray-700 py-6 text-center text-gray-400 text-sm">
+  <p>
+    © 2026 <span class="text-cyan-400 font-semibold">VeriNews</span>  
+    | News Verification Project
+  </p>
+  <p class="mt-1">
+    Built for academic & awareness purposes
+  </p>
+</footer>
+
+<script>
+  const btn = document.getElementById("notifBtn");
+  const box = document.getElementById("notifBox");
+
+  btn.addEventListener("click", () => {
+    box.classList.toggle("hidden");
+
+    fetch("/mark-notification-read", {
+      method: "POST"
+    }).then(() => {
+      const badge = document.querySelector("#notifBtn span");
+      if (badge) {badge.remove();}
+    });
+
+
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+const sindoorImages = [
+  "/static/images/sindoor1.png",
+  "/static/images/sindoor2.png",
+  "/static/images/sindoor3.png",
+  "/static/images/sindoor4.png",
+  "/static/images/sindoor1.2.png"
+];
+
+let index = 0;
+
+
+
+  const dashImg = document.getElementById("sindoorSliderDashboard");
+  const detailImg = document.getElementById("sindoorSliderDetail");
+
+  setInterval(() => {
+  index = (index + 1) % sindoorImages.length;
+
+  if (dashImg) dashImg.style.opacity = 0;
+  if (detailImg) detailImg.style.opacity = 0;
+setTimeout(() => {
+  if (dashImg) dashImg.src = sindoorImages[index];
+  if (detailImg) detailImg.src = sindoorImages[index];
+
+  if (dashImg) dashImg.style.opacity = 1;
+  if (detailImg) detailImg.style.opacity = 1;
+
+}, 300);
+  },3000)
+});
+</script>
+
+<!-- CHECK NEWS POPUP -->
+
+<script>
+const checkNewsBtn = document.getElementById("checkNewsBtn");
+const modal = document.getElementById("checkNewsModal");
+const closeBtn = document.getElementById("closeCheckNews");
+const submitBtn = document.getElementById("checkNewsSubmit");
+const resultBox = document.getElementById("checkNewsResult");
+
+checkNewsBtn.onclick = () => modal.classList.remove("hidden");
+closeBtn.onclick = () => modal.classList.add("hidden");
+
+submitBtn.onclick = async () => {
+  const text = document.getElementById("newsInput").value.trim();
+  if (!text) {
+    showResult("Please paste some news.", "error");
+    return;
+  }
+
+  showResult("Checking news with AI...", "loading");
+
+  const res = await fetch("/check-news", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ news: text })
+  });
+
+  const data = await res.json();
+  showResult(data.result, data.label);
+};
+
+function showResult(message, label) {
+  resultBox.classList.remove("hidden");
+  resultBox.className =
+    "mt-4 rounded-lg px-4 py-3 text-sm font-semibold";
+
+  if (label === "real") {
+    resultBox.classList.add("bg-green-500/20", "text-green-400");
+  } else if (label === "fake") {
+    resultBox.classList.add("bg-red-500/20", "text-red-400");
+  } else if (label === "verify") {
+    resultBox.classList.add("bg-yellow-500/20", "text-yellow-400");
+  } else {
+    resultBox.classList.add("bg-gray-500/20", "text-gray-300");
+  }
+
+  resultBox.innerText = message;
+}
+</script>
+
+
+
+
+
+</body>
+</html>

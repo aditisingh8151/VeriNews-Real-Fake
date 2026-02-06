@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Successful | VeriNews</title>
+    <script>
+        setTimeout(() => {
+            window.location.href = "/account";
+        }, 4000);
+    </script>
+    <style>
+        body {
+            margin: 0;
+            background: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .card {
+            background: #16a34a;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            width: 380px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        p {
+            opacity: 0.9;
+        }
+        .plan {
+            margin-top: 15px;
+            font-weight: bold;
+            background: rgba(255,255,255,0.15);
+            padding: 8px;
+            border-radius: 6px;
+        }
+        small {
+            display: block;
+            margin-top: 15px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>✅ Payment Successful</h1>
+    <p>Thank you {{ username }}!</p>
+
+    <div class="plan">
+        Activated Plan: {{ plan.replace("_", " ").title() }}
+    </div>
+
+    <small>
+        You will be redirected to your account in 4 seconds…
+    </small>
+</div>
+<script>
+    setTimeout(()=>{
+        window.location.href="/account";
+    },3000);
+</script>
+
+</body>
+</html>

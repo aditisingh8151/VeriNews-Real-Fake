@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>News Detail | VeriNews</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#0f172a] text-white">
+
+<!-- NAVBAR -->
+<nav class="fixed top-0 left-0 w-full h-[72px] bg-[#020617]
+            flex items-center px-6 border-b border-gray-800 z-50">
+  <span class="text-2xl font-bold text-cyan-400">VeriNews</span>
+</nav>
+
+<div class="h-[72px]"></div>
+
+<!-- NEWS CONTENT -->
+<section class="max-w-4xl mx-auto px-6 py-10">
+
+  <!-- CATEGORY -->
+  <span class="inline-block mb-3 px-3 py-1 bg-cyan-600 rounded-full text-sm">
+    {{ news.category}}
+  </span>
+  {% if news.status == "FAKE" %}
+  <span class="inline-block mb-3 px-3 py-1 bg-red-600 rounded-full text-sm">
+    ❌ FAKE NEWS
+  </span>
+{% else %}
+  <span class="inline-block mb-3 px-3 py-1 bg-green-600 rounded-full text-sm">
+    ✅ VERIFIED NEWS
+  </span>
+{% endif %}
+
+
+  <!-- TITLE -->
+  <h1 class="text-4xl font-bold mb-2">
+    {{ news.title}}
+  </h1>
+
+  <!-- DATE -->
+  <p class="text-sm text-gray-400 mb-6">
+    Published on: {{news.date}}
+  </p>
+
+  <!-- MAIN IMAGE (ONLY ONE IMAGE) -->
+  <img
+    src="/static/images/{{ news.image }}"
+    class="w-full h-[420px] object-cover object-center rounded-3xl mb-8"
+    alt="News Image"
+  >
+
+  <!-- NEWS PARAGRAPHS -->
+  {% for para in news.content %}
+    <p class="text-gray-300 leading-7 mb-5">
+      {{ para }}
+    </p>
+  {% endfor %}
+
+{%if news.link %}
+<a href="{{ news.link }}" target="_blank" class="text-cyan-400 underline mb-4 inline-block">
+  🔗 Read more about this news/Watch full coverage
+</a>
+{%else%}
+<p class="text-gray-400 italic mb-4">
+  🔗 No external link available for this news
+</p>
+{%endif%}
+
+  <!-- BACK BUTTON -->
+  <div class="mt-8">
+    <button
+      onclick="window.history.back()"
+      class="px-5 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg">
+      ← Back to Dashboard
+    </button>
+    <p id="interestStatus" class="mt-2 text-sm font-semibold">
+  {% if user_interest == "like" %}
+    <span class="text-green-400">You are interested in this news</span>
+  {% elif user_interest == "dislike" %}
+    <span class="text-red-400">You are not interested in this news</span>
+  {% endif %}
+</p>
+  </div>
+
+</section>
+<!-- ================= RATING SECTION ================= -->
+
+
+<div class="mt-6 flex gap-4">
+  <button id="likeBtn"
+          onclick="markInterest('like')"
+          class="px-4 py-2 bg-green-500 rounded-lg">
+    👍 Interested
+  </button>
+
+  <button id="dislikeBtn"
+          onclick="markInterest('dislike')"
+          class="px-4 py-2 bg-red-500 rounded-lg">
+    👎 Not Interested
+  </button>
+</div>
+
+<p id="interestStatus" class="mt-2 text-sm"></p>
+
+
+<p class="text-sm text-gray-400 mb-2">
+  Commenting as
+  <span class="text-cyan-400 font-semibold">
+    {{ username }}
+  </span>
+</p>
+
+<!-- COMMENTS SECTION -->
+<div class="mt-12 bg-slate-900 rounded-2xl p-6">
+
+  <h2 class="text-xl font-semibold mb-4 text-white">
+    💬 Comments
+  </h2>
+
+  
+  <!-- Comment Input -->
+  <textarea
+    id="commentInput"
+    placeholder="Write your comment here..."
+    class="w-full p-3 rounded-lg bg-slate-800 border border-gray-700
+           text-white focus:outline-none focus:ring-2 focus:ring-cyan-400"
+    rows="3"></textarea>
+
+  <button
+    onclick="addComment()"
+    class="mt-3 px-5 py-2 bg-cyan-500 text-black rounded-lg hover:bg-cyan-600">
+    Post Comment
+  </button>
+
+  <!-- Comment List -->
+  <div id="commentList" class="mt-6 space-y-3">
+    <!-- Comments will appear here -->
+  </div>
+
+</div>
+
+<!-- ================= RELATED NEWS ================= -->
+<div class="mt-10">
+  <h3 class="text-xl font-semibold mb-4">More news related to this</h3>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    {% for item in related_news %}
+    <a href="/news/{{ item.id }}"
+       class="related-card  block bg-[#0f172a] rounded-xl overflow-hidden hover:scale-[1.02] transition">
+
+      <!-- IMAGE -->
+      <img src="{{ url_for('static', filename='images/' + item.image) }}"
+           class="w-[80%] h-[260px] ml-4 mx-auto object-cover rounded-xl">
+
+      <!-- CONTENT -->
+      <div class="p-4">
+        <span class="inline-block text-xs px-3 py-1 rounded-full bg-red-600 mb-2">
+          {{ item.category }}
+        </span>
+        <h4 class="text-white font-semibold">
+          {{ item.title }}
+        </h4>
+      </div>
+
+    </a>
+    {% endfor %}
+
+  </div>
+</div>
+<!-- ================================================= -->
+
+<!-- FOOTER -->
+<footer class="mt-20 border-t border-gray-700 py-6 text-center text-gray-400 text-sm">
+  <p>
+    © 2026 <span class="text-cyan-400 font-semibold">VeriNews</span>  
+    | News Verification Project
+  </p>
+  <p class="mt-1">
+    Built for academic & awareness purposes
+  </p>
+</footer>
+
+<script>
+  const loggedUser = "{{ username }}";
+  const commentInput = document.getElementById("commentInput");
+  const commentList = document.getElementById("commentList");
+
+  // unique key for Sindoor comments
+  const newsKey = "comments-"+window.location.pathname;
+
+  // load saved comments
+  const savedComments =
+    JSON.parse(localStorage.getItem(newsKey)) || [];
+
+  savedComments.forEach(item => renderComment(item));
+
+  function addComment() {
+    const name = loggedUser;
+    const text = commentInput.value.trim();
+
+    // validation
+    if (text === "") {
+      alert("Please write a comment");
+      return;
+    }
+
+    const commentData = {
+      name: name,
+      text: text,
+      time: new Date().toLocaleString()
+    };
+
+    savedComments.push(commentData);
+    localStorage.setItem(newsKey, JSON.stringify(savedComments));
+
+    renderComment(commentData);
+
+    commentInput.value = "";
+  }
+
+  function renderComment(data) {
+    const div = document.createElement("div");
+    div.className =
+      "bg-slate-800 p-3 rounded-lg border border-gray-700 text-white";
+
+    div.innerHTML = `
+      <p class="text-sm font-semibold text-cyan-400">
+        ${data.name}
+        <span class="text-xs text-gray-400 ml-2">
+          ${data.time}
+        </span>
+      </p>
+      <p class="text-sm mt-1">
+        ${data.text}
+      </p>
+    `;
+
+    commentList.appendChild(div);
+  }
+</script>
+
+<script>
+const newsId = "{{ news_id }}";
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("interest_" + newsId);
+  if (saved) {
+    updateUI(saved);
+  }
+});
+
+function markInterest(action) {
+  localStorage.setItem("interest_" + newsId, action);
+    updateUI(action);
+  };
+
+
+function updateUI(action) {
+  const status = document.getElementById("interestStatus");
+  const likeBtn = document.getElementById("likeBtn");
+  const dislikeBtn = document.getElementById("dislikeBtn");
+
+  if (action === "like") {
+    status.innerText = "You marked this news as Interested";
+    likeBtn.classList.add("opacity-50");
+    dislikeBtn.classList.remove("opacity-50");
+  }
+
+  if (action === "dislike") {
+    status.innerText = "You marked this news as Not Interested";
+    dislikeBtn.classList.add("opacity-50");
+    likeBtn.classList.remove("opacity-50");
+  }
+}
+</script>
+
+<script>
+function markInterest(action) {
+    fetch(`/interest/{{ news_id }}/${action}`, {
+        method: "POST"
+    })
+    .then(() => {
+        document.getElementById("interestStatus").innerText =
+            action === "like"
+            ? "You marked this news as Interested"
+            : "You marked this news as Not Interested";
+    })
+    .catch(err => console.error(err));
+}
+</script>
+
+
+ 
+</body>
+</html>

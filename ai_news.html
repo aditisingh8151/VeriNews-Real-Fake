@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI News Detail | VeriNews</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] text-white min-h-screen">
+
+<!-- NAVBAR -->
+<nav class="px-8 py-4 border-b border-gray-700 flex justify-between items-center">
+  <h1 class="text-2xl font-bold text-cyan-400">VeriNews</h1>
+  <a href="/dashboard" class="text-sm text-cyan-300 hover:underline">← Back to Dashboard</a>
+</nav>
+
+
+<!-- MAIN -->
+<div class="max-w-6xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 gap-14 items-center">
+
+  <!-- LEFT : AI IMAGE -->
+  <div class="flex justify-center -mt-20">
+    <img
+      id="aiImage"
+      src="/static/images/new.png"
+      class="w-[320px] md:w-[420px]"
+      alt="AI Generated Image"
+    />
+  </div>
+
+  <!-- RIGHT : NEWS CONTENT -->
+  <div class="space-y-6">
+
+    <!-- TITLE -->
+    <div class="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/30 rounded-2xl p-6 shadow-xl">
+      <h2 class="text-4xl font-extrabold text-cyan-400 mb-2">
+        {{ title }} News
+      </h2>
+
+      <p class="text-sm text-gray-400">
+        Curated by AI • Verified for awareness
+      </p>
+    </div>
+
+    <!-- SUMMARY BOX -->
+    <div class="bg-[#020617]/80 border border-gray-700 rounded-2xl p-6 shadow-lg">
+      <p id="aiSummary" class="text-gray-200 leading-relaxed text-lg">
+        ⏳ Loading AI summary...
+      </p>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="flex items-center gap-2 text-xs text-yellow-400 italic">
+      ⚠ This content is AI-generated for awareness purposes only.
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="mt-20 border-t border-gray-700 py-6 text-center text-gray-400 text-sm">
+  © 2026 <span class="text-cyan-400 font-semibold">VeriNews</span> | News Verification Project  
+  <br/>
+  Built for academic & awareness purposes
+</footer>
+
+<!-- SCRIPT -->
+<script>
+  const query = "{{ title }}";
+
+  fetch("/ai-search", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ query })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("aiSummary").innerText = data.description;
+
+    // OPTIONAL: AI IMAGE (if backend provides)
+
+  })
+  .catch(() => {
+    document.getElementById("aiSummary").innerText =
+      "⚠ AI summary load nahi ho paayi. Thodi der baad try karein.";
+  });
+</script>
+
+</body>
+</html>

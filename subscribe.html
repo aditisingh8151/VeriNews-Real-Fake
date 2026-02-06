@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Subscribe | VeriNews</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#0f172a] text-white min-h-screen">
+
+<!-- NAVBAR -->
+<nav class="h-[72px] bg-[#020617] flex items-center px-6 border-b border-gray-800">
+  <span class="text-2xl font-bold text-cyan-400">VeriNews</span>
+</nav>
+
+<!-- MAIN -->
+<section class="max-w-5xl mx-auto px-6 py-16">
+
+  <!-- TITLE -->
+  <div class="text-center mb-14">
+    <h1 class="text-4xl font-extrabold mb-4">
+      Upgrade to <span class="text-cyan-400">VeriNews Premium</span>
+    </h1>
+    <p class="text-gray-400 max-w-2xl mx-auto">
+      Verified, trusted and in-depth journalism.  
+      No fake news. No noise.
+    </p>
+  </div>
+
+  <!-- SUBSCRIPTION CARD -->
+  <h1 class="text-3xl font-bold text-center mb-10">
+  Unlock <span class="text-cyan-400">Premium News</span>
+</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+  <!-- BASIC PLAN -->
+  <div class="bg-slate-900 rounded-3xl p-6 border border-gray-700
+              hover:border-cyan-400 transition shadow-xl">
+    <span class="inline-block mb-4 px-4 py-1 rounded-full
+                 bg-gray-700 text-sm tracking-wide">
+      BASIC
+    </span>
+
+    <h2 class="text-4xl font-extrabold mb-2">₹29</h2>
+    <p class="text-gray-400 mb-6">per month</p>
+
+    <ul class="space-y-3 text-sm text-gray-300 mb-6">
+      <li>✔ Full premium news access</li>
+      <li>✔ No blurred images</li>
+      <li>✔ Verified sources</li>
+    </ul>
+
+    
+      <input type="hidden" name="plan" value="monthly">
+      <button type="button" onclick="startPayment(29,'monthly')" class="w-full py-3 rounded-xl bg-cyan-500 text-black font-semibold
+                     hover:opacity-90 transition">
+        Subscribe ₹29
+      </button>
+    
+  </div>
+
+  <!-- POPULAR PLAN -->
+  <div class="relative bg-slate-900 rounded-3xl p-6 border-2 border-yellow-400
+              shadow-2xl scale-105">
+
+    <span class="absolute -top-4 left-1/2 -translate-x-1/2
+                 px-4 py-1 text-sm rounded-full
+                 bg-gradient-to-r from-yellow-400 to-orange-500
+                 text-black font-bold shadow-lg">
+      MOST POPULAR
+    </span>
+
+    <h2 class="text-4xl font-extrabold mt-6 mb-2">₹149</h2>
+    <p class="text-gray-400 mb-6">for 6 months</p>
+
+    <ul class="space-y-3 text-sm text-gray-300 mb-6">
+      <li>✔ Everything in Monthly</li>
+      <li>✔ Save more money</li>
+      <li>✔ Priority access</li>
+    </ul>
+
+    
+      <input type="hidden" name="plan" value="half_yearly">
+      <button type="button" onclick="startPayment(149,'half_yearly')" class="w-full py-3 rounded-xl
+                     bg-gradient-to-r from-yellow-400 to-orange-500
+                     text-black font-bold shadow-xl hover:opacity-90 transition">
+        Subscribe ₹149
+      </button>
+    
+  </div>
+
+  <!-- YEARLY PLAN -->
+  <div class="bg-slate-900 rounded-3xl p-6 border border-gray-700
+              hover:border-green-400 transition shadow-xl">
+    <span class="inline-block mb-4 px-4 py-1 rounded-full
+                 bg-green-600/20 text-green-400 text-sm tracking-wide">
+      BEST VALUE
+    </span>
+
+    <h2 class="text-4xl font-extrabold mb-2">₹299</h2>
+    <p class="text-gray-400 mb-6">per year</p>
+
+    <ul class="space-y-3 text-sm text-gray-300 mb-6">
+      <li>✔ Unlimited premium news</li>
+      <li>✔ Maximum savings</li>
+      <li>✔ Long-term access</li>
+    </ul>
+
+    
+      <input type="hidden" name="plan" value="yearly">
+      <button type="button" onclick="startPayment(299,'yearly')" class="w-full py-3 rounded-xl bg-green-500 text-black font-semibold
+                     hover:opacity-90 transition">
+        Subscribe ₹299
+      </button>
+    
+  </div>
+
+</div>
+
+   
+
+
+  <!-- BACK -->
+  <div class="text-center mt-10">
+    <a href="/dashboard" class="text-cyan-400 hover:underline">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+
+
+</section>
+ <!-- FOOTER -->
+<footer class="mt-20 border-t border-gray-700 py-6 text-center text-gray-400 text-sm">
+  <p>
+    © 2026 <span class="text-cyan-400 font-semibold">VeriNews</span>  
+    | News Verification Project
+  </p>
+  <p class="mt-1">
+    Built for academic & awareness purposes
+  </p>
+</footer>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+function startPayment(amount, plan) {
+  fetch("/create-order", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ amount: amount })
+  })
+  .then(res => res.json())
+  .then(data => {
+    var options = {
+      "key": "{{ razorpay_key }}",   // test key
+      "amount": data.amount,
+      "currency": "INR",
+      "name": "VeriNews Premium",
+      "description": plan + " subscription",
+      "order_id": data.order_id,
+      "handler": function (response) {
+        window.location.href = "/payment-success?plan=" + plan;
+      }
+    };
+
+    var rzp = new Razorpay(options);
+    rzp.open();
+  });
+}
+</script>
+
+</body>
+</html>
