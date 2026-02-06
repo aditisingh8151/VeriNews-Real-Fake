@@ -1,4 +1,7 @@
-flask
+Flask==3.0.0
+gunicorn
 pymongo
-werkzeung
-dnspython
+python-dotenv
+razorpay
+google-generativeai
+werkzeug==3.0.1
